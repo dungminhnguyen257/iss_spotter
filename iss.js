@@ -17,8 +17,6 @@ const fetchMyIP = function (callback) {
 
   request(url, (error, response, body) => {
     if (error) {
-      // console.log("error:", error);
-      // console.log("status code:", response && response.statusCode);
       return callback(error, null);
     }
 
@@ -35,5 +33,27 @@ const fetchMyIP = function (callback) {
     }
   });
 };
-// fetchMyIP();
-module.exports = { fetchMyIP };
+const ip = "";
+const fetchCoordsByIP = function (ip, callback) {
+  const url =
+    "https://api.ipbase.com/json/?apikey=AG8HAenbMGC1MigPzwlB56Y6aCRMVQIfc5fNRjVq";
+  request(url, (error, response, body) => {
+    if (error) {
+      return callback(error, null);
+    }
+    let data = {};
+    data.latitude = JSON.parse(body).latitude;
+    data.longtitude = JSON.parse(body).longitude;
+    console.log(response);
+    if (data) {
+      callback(null, data);
+    }
+    // if non-200 status, assume server error
+    if (response.statusCode != 200) {
+      const msg = `Status Code ${response.statusCode} when fetching IP. Response: ${body}`;
+      return callback(Error(msg), null);
+    }
+  });
+};
+
+module.exports = { fetchMyIP, fetchCoordsByIP };
