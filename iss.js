@@ -1,14 +1,3 @@
-// It will contain most of the logic for fetching the data from each API endpoint.
-
-/**
- * Makes a single API request to retrieve the user's IP address.
- * Input:
- *   - A callback (to pass back an error or the IP string)
- * Returns (via Callback):
- *   - An error, if any (nullable)
- *   - The IP address as a string (null if error). Example: "162.245.144.188"
- */
-
 const request = require("request");
 
 const fetchMyIP = function (callback) {
@@ -33,8 +22,8 @@ const fetchMyIP = function (callback) {
     }
   });
 };
-const ip = "";
-const fetchCoordsByIP = function (ip, callback) {
+
+const fetchCoordsByIP = function (callback) {
   const url =
     "https://api.ipbase.com/json/?apikey=AG8HAenbMGC1MigPzwlB56Y6aCRMVQIfc5fNRjVq";
   request(url, (error, response, body) => {
@@ -44,16 +33,33 @@ const fetchCoordsByIP = function (ip, callback) {
     let data = {};
     data.latitude = JSON.parse(body).latitude;
     data.longtitude = JSON.parse(body).longitude;
-    console.log(response);
-    if (data) {
-      callback(null, data);
-    }
     // if non-200 status, assume server error
     if (response.statusCode != 200) {
-      const msg = `Status Code ${response.statusCode} when fetching IP. Response: ${body}`;
+      const msg = `Status Code ${response.statusCode} when fetching coordinates for IP. Response: ${body}`;
       return callback(Error(msg), null);
+    }
+    if (data) {
+      callback(null, data);
     }
   });
 };
 
-module.exports = { fetchMyIP, fetchCoordsByIP };
+const fetchISSFlyOverTimes = function (callback) {
+  const url =
+    "https://iss-pass.herokuapp.com/json/?lat=43.70317077636719&lon=-79.51219177246094";
+  request(url, (error, response, body) => {
+    if (error) {
+      return error, null;
+    }
+    if (response.statusCode != 200) {
+      const msg = `Status Code ${response.statusCode} when fetching ISS pass time. Response: ${body}`;
+      return callback(Error(msg), null);
+    }
+    let data = JSON.parse(body).response;
+    if (data) {
+      callback(null, data);
+    }
+  });
+};
+
+module.exports = { fetchMyIP, fetchCoordsByIP, fetchISSFlyOverTimes };
